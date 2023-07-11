@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.2 20190208//EN"
+                  "JATS-publishing1.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" dtd-version="1.2" article-type="other">
+<front>
+<journal-meta>
+<journal-id></journal-id>
+<journal-title-group>
+<journal-title>Journal of Open Source Software</journal-title>
+<abbrev-journal-title>JOSS</abbrev-journal-title>
+</journal-title-group>
+<issn publication-format="electronic">2475-9066</issn>
+<publisher>
+<publisher-name>Open Journals</publisher-name>
+</publisher>
+</journal-meta>
+<article-meta>
+<article-id pub-id-type="publisher-id">0</article-id>
+<article-id pub-id-type="doi">N/A</article-id>
+<title-group>
+<article-title>GPU Code Generation of Cardiac Electrophysiology
+Simulation with MLIR</article-title>
+</title-group>
+<contrib-group>
+<contrib contrib-type="author" equal-contrib="yes">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-0601-7247</contrib-id>
+<name>
+<surname>Jost</surname>
+<given-names>Tiago Trevisan</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author" equal-contrib="yes">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-1382-2399</contrib-id>
+<name>
+<surname>Thangamani</surname>
+<given-names>Arun</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-1543-0858</contrib-id>
+<name>
+<surname>Colin</surname>
+<given-names>Raphaël</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author" corresp="yes">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-3481-4881</contrib-id>
+<name>
+<surname>Loechner</surname>
+<given-names>Vincent</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+<xref ref-type="corresp" rid="cor-1"><sup>*</sup></xref>
+</contrib>
+<contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-0065-8083</contrib-id>
+<name>
+<surname>Genaud</surname>
+<given-names>Stéphane</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-0281-9709</contrib-id>
+<name>
+<surname>Bramas</surname>
+<given-names>Bérenger</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<aff id="aff-1">
+<institution-wrap>
+<institution>Inria Nancy Grand Est and ICube Lab., University of
+Strasbourg, France.</institution>
+</institution-wrap>
+</aff>
+</contrib-group>
+<author-notes>
+<corresp id="cor-1">* E-mail: <email></email></corresp>
+</author-notes>
+<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2017-08-13">
+<day>13</day>
+<month>8</month>
+<year>2017</year>
+</pub-date>
+<volume>¿VOL?</volume>
+<issue>¿ISSUE?</issue>
+<fpage>¿PAGE?</fpage>
+<permissions>
+<copyright-statement>Authors of papers retain copyright and release the
+work under a Creative Commons Attribution 4.0 International License (CC
+BY 4.0)</copyright-statement>
+<copyright-year>2022</copyright-year>
+<copyright-holder>The article authors</copyright-holder>
+<license license-type="open-access" xlink:href="https://creativecommons.org/licenses/by/4.0/">
+<license-p>Authors of papers retain copyright and release the work under
+a Creative Commons Attribution 4.0 International License (CC BY
+4.0)</license-p>
+</license>
+</permissions>
+<kwd-group kwd-group-type="author">
+<kwd>automatic GPU code generation</kwd>
+<kwd>code transformation</kwd>
+<kwd>MLIR</kwd>
+<kwd>domain-specific languages</kwd>
+<kwd>heterogeneous architectures</kwd>
+</kwd-group>
+</article-meta>
+</front>
+<body>
+<sec id="summary">
+  <title>Summary</title>
+  <p>We show the benefits of the novel MLIR compiler technology to the
+  generation of code from a DSL, namely EasyML used in openCARP, a
+  widely used simulator in the cardiac electrophysiology community.
+  Building on an existing work that deeply modified openCARP’s native
+  DSL code generator to enable efficient vectorized CPU code, we extend
+  the code generation for GPUs (Nvidia CUDA and AMD ROCm). Generating
+  optimized code for different accelerators requires specific
+  optimizations and we review how MLIR has been used to enable
+  multi-target code generation from an integrated generator. Experiments
+  conducted on the 48 ionic models provided by openCARP show that the
+  GPU code executes <inline-formula><alternatives>
+  <tex-math><![CDATA[3.17\times]]></tex-math>
+  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mn>3.17</mml:mn><mml:mo>×</mml:mo></mml:mrow></mml:math></alternatives></inline-formula>
+  faster and delivers more than <inline-formula><alternatives>
+  <tex-math><![CDATA[7\times]]></tex-math>
+  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mn>7</mml:mn><mml:mo>×</mml:mo></mml:mrow></mml:math></alternatives></inline-formula>
+  FLOPS per watt than the vectorized CPU code, on an Nvidia A100 GPU
+  versus a 36-cores AVX-512 Intel CPU.</p>
+</sec>
+<sec id="statement-of-need">
+  <title>Statement of need</title>
+  <p>Cardiac electrophysiology is a medical specialty in which the
+  research community has long been using computational simulation.
+  Understanding the heart’s behavior (and in particular cardiac
+  diseases) requires to model the ionic flows between the muscular cells
+  of cardiac tissue. Such models, called <italic>ionic models</italic>,
+  describe the way an electric current flows through the cell membranes.
+  The
+  openCARP(<xref alt="Plank et al., 2021" rid="ref-opencarp" ref-type="bibr">Plank
+  et al., 2021</xref>) simulation framework has been created to promote
+  the sharing of the cardiac simulation efforts from the
+  electrophysiology community.</p>
+  <p>The next major advances in cardiac research will require to
+  increase by several orders of magnitude the number of cardiac cells
+  that are simulated. The ultimate goal is to simulate the whole human
+  heart at the cell
+  level(<xref alt="Potse et al., 2020" rid="ref-mark" ref-type="bibr">Potse
+  et al., 2020</xref>), that will require to run several thousands of
+  time steps on a mesh of several billions of elements.</p>
+  <p>In order to achieve such simulations involving exascale
+  supercomputers, the generation of efficient code is a key challenge.
+  This is the general purpose of our work. We propose to extend the
+  original openCARP code generator using the state-of-the-art compiler
+  technology MLIR (Multi-Level Intermediate
+  Representation)(<xref alt="Chris Lattner et al., 2021" rid="ref-mlir" ref-type="bibr">Chris
+  Lattner et al., 2021</xref>) from
+  LLVM(<xref alt="C. Lattner &amp; Adve, 2004" rid="ref-llvm" ref-type="bibr">C.
+  Lattner &amp; Adve, 2004</xref>).</p>
+  <p>In a previous
+  work(<xref alt="Thangamani et al., 2023" rid="ref-limpetmlir" ref-type="bibr">Thangamani
+  et al., 2023</xref>), we propose limpetMLIR and introduced
+  architectural modifications to openCARP to enable the generation of
+  CPU vectorized code using MLIR. And, now there raises a strong need to
+  extend the code generation process for GPU architectures as well.</p>
+</sec>
+<sec id="system-overview">
+  <title>System Overview</title>
+  <p>We extend the limpetMLIR to enable code geenration for GPU target
+  architectures. We follow a five stage compilation flow as show in the
+  <xref alt="[fig:limpetMLIR]" rid="figU003AlimpetMLIR">[fig:limpetMLIR]</xref>:</p>
+  <fig>
+    <caption><p>Overview of the code generation, from the EasyML model
+    to an object file. The dashed line box shows how limpetMLIR fits
+    into the original code generation process, to emit optimized code
+    for CPU and
+    GPU.<styled-content id="figU003AlimpetMLIR"></styled-content></p></caption>
+    <graphic mimetype="image" mime-subtype="png" xlink:href="media/limpetMLIR.png" />
+  </fig>
+  <list list-type="order">
+    <list-item>
+      <p>From the EasyML description the <monospace>limpet</monospace>
+      python program creates an AST, which serves as a common entry
+      point for the baseline openCARP and limpetMLIR.</p>
+    </list-item>
+    <list-item>
+      <p>Using python bindings, our limpetMLIR code generator emits MLIR
+      code using the <monospace>scf</monospace>,
+      <monospace>arith</monospace>, <monospace>math</monospace> and
+      <monospace>memref</monospace> dialects; the control flow expressed
+      in <monospace>scf</monospace> allows the latter MLIR passes to
+      lower it to a parallel control flow in the
+      <monospace>gpu</monospace> dialect.</p>
+    </list-item>
+    <list-item>
+      <p>The MLIR lowering pass converts the MLIR code into a GPU device
+      code part using a specific GPU low-level dialect. This low-level
+      dialect can be either <monospace>nvvm</monospace> (the Nvidia CUDA
+      IR) or <monospace>rocdl</monospace> (the AMD ROCm IR) depending on
+      the target GPU architecture. This pass finally outputs a binary
+      blob that will be integrated by the next step.</p>
+    </list-item>
+    <list-item>
+      <p>The MLIR translator pass converts the MLIR code into a CPU host
+      code part (represented using the <monospace>llvm</monospace>
+      dialect) to LLVM IR, and that calls the kernel embedded in the
+      binary blob.</p>
+    </list-item>
+    <list-item>
+      <p>Last is the linking phase, where <monospace>C/C++</monospace>
+      and LLVM IR GPU files are linked together into an object file
+      using LLVM.</p>
+    </list-item>
+  </list>
+  <p>We are further developing our limpetMLIR by integrating with a
+  task-based runtime system like
+  StarPU(<xref alt="Augonnet et al., 2011" rid="ref-starpu" ref-type="bibr">Augonnet
+  et al., 2011</xref>), in order to exploit simultaneously CPU and GPU
+  so able %so as to be able to run experiments at larger scales.</p>
+</sec>
+<sec id="acknowledgements">
+  <title>Acknowledgements</title>
+  <p>This work was supported by the European High-Performance Computing
+  Joint Undertaking EuroHPC under grant agreement No 955495
+  (<bold>MICROCARD</bold>), co-funded by the Horizon 2020 programme of
+  the European Union (EU), and France, Italy, Germany, Austria, Norway,
+  and Switzerland
+  (<ext-link ext-link-type="uri" xlink:href="https://microcard.eu">https://microcard.eu</ext-link>).
+  Some experiments presented in this paper were carried out using the
+  <bold>PlaFRIM</bold> experimental test bed, supported by Inria, CNRS
+  (LABRI and IMB), Université de Bordeaux, Bordeaux INP and Conseil
+  Régional d’Aquitaine
+  (<ext-link ext-link-type="uri" xlink:href="https://plafrim.fr">https://plafrim.fr</ext-link>).
+  Some experiments presented in this paper were carried out using the
+  <bold>Grid’5000</bold> testbed, supported by a scientific interest
+  group hosted by Inria and including CNRS, RENATER and several
+  Universities as well as other organizations
+  (<ext-link ext-link-type="uri" xlink:href="https://www.grid5000.fr">https://www.grid5000.fr</ext-link>).</p>
+</sec>
+</body>
+<back>
+<ref-list>
+  <ref id="ref-opencarp">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Plank</surname><given-names>Gernot</given-names></name>
+        <name><surname>Loewe</surname><given-names>Axel</given-names></name>
+        <name><surname>Neic</surname><given-names>Aurel</given-names></name>
+        <name><surname>Augustin</surname><given-names>Christoph</given-names></name>
+        <name><surname>Huang</surname><given-names>Yung-Lin</given-names></name>
+        <name><surname>Gsell</surname><given-names>Matthias A. F.</given-names></name>
+        <name><surname>Karabelas</surname><given-names>Elias</given-names></name>
+        <name><surname>Nothstein</surname><given-names>Mark</given-names></name>
+        <name><surname>Prassl</surname><given-names>Anton J.</given-names></name>
+        <name><surname>Sánchez</surname><given-names>Jorge</given-names></name>
+        <name><surname>Seemann</surname><given-names>Gunnar</given-names></name>
+        <name><surname>Vigmond</surname><given-names>Edward J.</given-names></name>
+      </person-group>
+      <article-title>The openCARP simulation environment for cardiac electrophysiology</article-title>
+      <source>Computer Methods and Programs in Biomedicine</source>
+      <year iso-8601-date="2021">2021</year>
+      <volume>208</volume>
+      <issn>0169-2607</issn>
+      <pub-id pub-id-type="doi">10.1016/j.cmpb.2021.106223</pub-id>
+      <fpage>106223</fpage>
+      <lpage></lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-limpetmlir">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Thangamani</surname><given-names>Arun</given-names></name>
+        <name><surname>Trevisan</surname><given-names>Tiago</given-names></name>
+        <name><surname>Loechner</surname><given-names>Vincent</given-names></name>
+        <name><surname>Genaud</surname><given-names>Stephane</given-names></name>
+        <name><surname>Bramas</surname><given-names>Bérenger</given-names></name>
+      </person-group>
+      <article-title>Lifting Code Generation of Cardiac Physiology Simulation to Novel Compiler Technology</article-title>
+      <source>21st ACM/IEEE Int. Symp. on Code Generation and Optimization (CGO)</source>
+      <publisher-name>ACM</publisher-name>
+      <publisher-loc>Montréal Québec, Canada</publisher-loc>
+      <year iso-8601-date="2023">2023</year>
+      <pub-id pub-id-type="doi">10.1145/3579990.3580008</pub-id>
+    </element-citation>
+  </ref>
+  <ref id="ref-mark">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Potse</surname><given-names>Mark</given-names></name>
+        <name><surname>Saillard</surname><given-names>Emmanuelle</given-names></name>
+        <name><surname>Barthou</surname><given-names>Denis</given-names></name>
+        <name><surname>Coudière</surname><given-names>Yves</given-names></name>
+      </person-group>
+      <article-title>Feasibility of whole-heart electrophysiological models with near-cellular resolution</article-title>
+      <source>2020 computing in cardiology</source>
+      <year iso-8601-date="2020">2020</year>
+      <volume></volume>
+      <pub-id pub-id-type="doi">10.22489/CinC.2020.126</pub-id>
+      <fpage>1</fpage>
+      <lpage>4</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-mlir">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Lattner</surname><given-names>Chris</given-names></name>
+        <name><surname>Amini</surname><given-names>Mehdi</given-names></name>
+        <name><surname>Bondhugula</surname><given-names>Uday</given-names></name>
+        <name><surname>Cohen</surname><given-names>Albert</given-names></name>
+        <name><surname>Davis</surname><given-names>Andy</given-names></name>
+        <name><surname>Pienaar</surname><given-names>Jacques</given-names></name>
+        <name><surname>Riddle</surname><given-names>River</given-names></name>
+        <name><surname>Shpeisman</surname><given-names>Tatiana</given-names></name>
+        <name><surname>Vasilache</surname><given-names>Nicolas</given-names></name>
+        <name><surname>Zinenko</surname><given-names>Oleksandr</given-names></name>
+      </person-group>
+      <article-title>MLIR: Scaling compiler infrastructure for domain specific computation</article-title>
+      <source>2021 IEEE/ACM int. Symp. On code generation and optimization (CGO)</source>
+      <year iso-8601-date="2021">2021</year>
+      <volume></volume>
+      <pub-id pub-id-type="doi">10.1109/CGO51591.2021.9370308</pub-id>
+      <fpage>2</fpage>
+      <lpage>14</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-llvm">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Lattner</surname><given-names>C.</given-names></name>
+        <name><surname>Adve</surname><given-names>V.</given-names></name>
+      </person-group>
+      <article-title>LLVM: A compilation framework for lifelong program analysis &amp; transformation</article-title>
+      <source>Int. Symp. On code generation and optimization, 2004.</source>
+      <year iso-8601-date="2004">2004</year>
+      <volume></volume>
+      <pub-id pub-id-type="doi">10.1109/CGO.2004.1281665</pub-id>
+      <fpage>75</fpage>
+      <lpage>86</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-starpu">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Augonnet</surname><given-names>Cédric</given-names></name>
+        <name><surname>Thibault</surname><given-names>Samuel</given-names></name>
+        <name><surname>Namyst</surname><given-names>Raymond</given-names></name>
+        <name><surname>Wacrenier</surname><given-names>Pierre-André</given-names></name>
+      </person-group>
+      <article-title>StarPU: A Unified Platform for Task Scheduling on Heterogeneous Multicore Architectures</article-title>
+      <source>CCPE - Concurrency and Computation: Practice and Experience, Special Issue: Euro-Par 2009</source>
+      <publisher-name>John Wiley &amp; Sons, Ltd.</publisher-name>
+      <year iso-8601-date="2011-02">2011</year><month>02</month>
+      <volume>23</volume>
+      <pub-id pub-id-type="doi">10.1002/cpe.1631</pub-id>
+      <fpage>187</fpage>
+      <lpage>198</lpage>
+    </element-citation>
+  </ref>
+</ref-list>
+</back>
+</article>
