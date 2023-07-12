@@ -39,69 +39,58 @@ affiliations:
 date: 13 August 2017
 bibliography: paper.bib
 
-# Optional fields if submitting to a AAS journal too, see this blog post:
-# https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-#aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-#aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
-We show the benefits of the novel MLIR compiler technology to the 
-generation of code from a DSL, namely EasyML used in openCARP, a widely 
+In this work, we show the benefits of the novel MLIR compiler technology to the 
+efficient generation of code in openCARP, a widely 
 used simulator in the cardiac electrophysiology community.
 Building on an existing 
-work that deeply modified openCARP's native DSL code generator to enable 
+work that deeply modified openCARP's native code generator to enable 
 efficient
 vectorized  CPU code, we extend the code generation for GPUs (Nvidia CUDA and 
-AMD ROCm). Generating optimized code for different accelerators requires specific
-optimizations and we review how MLIR has been used to enable multi-target code 
-generation from an integrated generator. Experiments conducted on the 48 ionic 
-models provided by openCARP show that the GPU code executes $3.17\times$ faster 
-and delivers more than $7\times$ FLOPS per watt than the vectorized CPU code, 
-on an
-Nvidia A100 GPU versus a 36-cores AVX-512 Intel CPU.
+AMD ROCm) as well.
 
 
 # Statement of need
 
 Cardiac electrophysiology is a medical specialty in which the research 
-community has long been using computational simulation. 
-Understanding the heart's behavior (and in particular cardiac diseases) 
-requires to model the ionic flows between the muscular cells 
+community and cardiac doctors has long been using computational simulation to 
+understand the heart's behavior and detect particular cardiac diseases. 
+Computational simulation requires to model the ionic flows between the muscular cells 
 of cardiac tissue. Such models, called \emph{ionic models}, describe 
-the way an electric current flows through the cell membranes.
+the way how an electric current flows through the cell membranes of human heart.
 The openCARP[@opencarp] simulation 
-framework has been created to promote the sharing of the cardiac simulation 
-efforts from the electrophysiology community.
+framework has been created to promote the cardiac simulation 
+efforts from the electrophysiology community to the real world usage.
 
-The next major advances in cardiac research will require to increase by 
+The upcoming major advancement in cardiac research will require to increase by 
 several orders of magnitude the number of cardiac cells that are simulated. 
-The ultimate goal is to simulate the whole human heart at the cell level[@mark],
+And, their ultimate goal is to simulate the whole human heart at the cell level[@mark],
 that will require to run several thousands of time steps on a mesh of several billions of elements.
 
-In order to achieve such simulations involving exascale supercomputers, the generation 
-of efficient code is a key challenge. This is the general purpose of our work.
+In order to achieve such vary large simulations involving exascale supercomputers, the generation 
+of efficient optimized code is a key challenge. This is the main motivation of our work.
 We propose to extend the original openCARP code generator using
-the state-of-the-art compiler technology MLIR (Multi-Level Intermediate Representation)[@mlir] from LLVM[@llvm]. 
-
-In a previous work[@limpetmlir], we propose limpetMLIR and introduced architectural modifications to openCARP 
+the state-of-the-art compiler technology MLIR[@mlir] from LLVM[@llvm] compiler framework. 
+In a previous work[@limpetmlir], we proposed **limpetMLIR** and introduced architectural modifications to openCARP 
 to enable  the generation of CPU  vectorized code using MLIR. And, now there raises a strong need to extend the 
-code generation process for GPU architectures as well.
+code generation process for GPU architectures as well, that is the prime contribution of this paper.
 
 # System Overview
 
-We extend the limpetMLIR to enable code geenration for GPU target architectures. We follow a five stage compilation flow as show in the \autoref{fig:limpetMLIR}:
+We extend the limpetMLIR to enable code generation for GPU target architectures. We follow a five stage compilation flow as show in the \autoref{fig:limpetMLIR} from our work published in Euro-Par'23[@gpumlir]:
 
-![Overview of the code generation, from the EasyML model to an object file. 
+![Overview of the code generation process in openCARP to an object file. 
 The dashed line box shows how limpetMLIR fits into the original code generation
 process, to emit optimized code for CPU and GPU.\label{fig:limpetMLIR}](./limpetMLIR.png)
 
 
-1. From the EasyML description the `limpet` python program creates 
+1. From the EasyML (a DSL to write ionic models) description the `limpet_fe` python program creates 
     an AST, which serves as a common entry point for the baseline openCARP and 
     limpetMLIR.
     
-2. Using python bindings, our limpetMLIR code generator emits MLIR code 
+2. Using python bindings, the limpetMLIR code generator emits MLIR code 
     using the `scf`, `arith`, `math` and `memref` dialects; the 
     control flow expressed in `scf` allows the latter MLIR passes to lower 
     it to a parallel control flow in the `gpu` dialect. 
@@ -117,8 +106,11 @@ process, to emit optimized code for CPU and GPU.\label{fig:limpetMLIR}](./limpet
 5. Last is the linking phase, where `C/C++` and LLVM IR GPU files are linked together into an object file using LLVM.
 
 We are further developing our limpetMLIR by integrating with a task-based runtime system like StarPU[@starpu], 
-in order to exploit simultaneously CPU and GPU so able %so as to be able 
+in order to exploit simultaneously CPU and GPU so able
 to run experiments at larger scales.
+
+We build our code generation software on top of the openCARP source files. The authors listed here are contributors for GPU code generation software alone.
+The license for the rest of the software is same as the openCARP licenses.
 
 # Acknowledgements
 
