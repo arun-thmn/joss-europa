@@ -42,81 +42,59 @@ bibliography: paper.bib
 ---
 
 # Summary
-In this work, we show the benefits of the novel MLIR compiler technology to the 
-efficient generation of code in openCARP, a widely 
-used simulator in the cardiac electrophysiology community.
-Building on an existing 
-work that deeply modified openCARP's native code generator to enable 
-efficient
-vectorized  CPU code, we extend the code generation for GPUs (Nvidia CUDA and 
-AMD ROCm) as well.
+In this work, we show the benefits of the novel MLIR compiler technology to the efficient generation of code in openCARP, a widely used simulator in the cardiac electrophysiology community.
+Building on an existing work that deeply modified openCARP's native code generator to enable efficient vectorized  CPU code, we extend the code generation for GPUs (Nvidia CUDA and AMD ROCm).
 
 
 # Statement of need
 
 Cardiac electrophysiology is a medical specialty in which the research 
-community and cardiac doctors has long been using computational simulation to 
-understand the heart's behavior and detect particular cardiac diseases. 
-Computational simulation requires to model the ionic flows between the muscular cells 
-of cardiac tissue. Such models, called \emph{ionic models}, describe 
-the way how an electric current flows through the cell membranes of human heart.
-The openCARP[@opencarp] simulation 
-framework has been created to promote the cardiac simulation 
-efforts from the electrophysiology community to the real world usage.
+community and cardiac doctors has long been using computational simulation to understand the heart's behavior and detect particular cardiac diseases. 
+Computational simulation requires to model the ionic flows between the muscular cells of cardiac tissue. Such models, called *ionic models*, describe how an electric current flows through the cell membranes of human heart.
+The openCARP[@opencarp] simulation framework offers a Domain-specific language (DSL) to describe an ionic model, from which it can generate C/C++ source code. The generated code is then compiled to produce an executable that implements the simulation.
 
-The upcoming major advancement in cardiac research will require to increase by 
-several orders of magnitude the number of cardiac cells that are simulated. 
-And, their ultimate goal is to simulate the whole human heart at the cell level[@mark],
-that will require to run several thousands of time steps on a mesh of several billions of elements.
+The upcoming major advancement in cardiac research will require to increase by  several orders of magnitude the number of cardiac cells that are simulated. The ultimate goal is to simulate the whole human heart at the cell level[@mark], which will require to run several thousands of time steps on a mesh of several billions of elements.
 
-In order to achieve such vary large simulations involving exascale supercomputers, the generation 
-of efficient optimized code is a key challenge. This is the main motivation of our work.
+In order to achieve such vary large simulations involving exascale supercomputers, the generation of efficient optimized code is a key challenge. This is the main motivation of our work.
 We propose to extend the original openCARP code generator using
-the state-of-the-art compiler technology MLIR[@mlir] from LLVM[@llvm] compiler framework. 
-In a previous work[@limpetmlir], we proposed **limpetMLIR** and introduced architectural modifications to openCARP 
-to enable  the generation of CPU  vectorized code using MLIR. And, now there raises a strong need to extend the 
-code generation process for GPU architectures as well, that is the prime contribution of this paper.
+the state-of-the-art compiler technology MLIR[@mlir] from the LLVM[@llvm] compiler framework. 
+In a previous work[@limpetmlir], we proposed **limpetMLIR** and introduced architectural modifications to the openCARP code generator 
+to enable  the generation of CPU  vectorized code using MLIR. In this work we extend the code generation process to GPU architectures, that is the prime contribution of this paper.
 
 # System Overview
 
 We extend the limpetMLIR to enable code generation for GPU target architectures. We follow a five stage compilation flow as show in the \autoref{fig:limpetMLIR} from our work published in Euro-Par'23[@gpumlir]:
 
 ![Overview of the code generation process in openCARP to an object file. 
-The dashed line box shows how limpetMLIR fits into the original code generation
-process, to emit optimized code for CPU and GPU.\label{fig:limpetMLIR}](./limpetMLIR.png)
+The dashed line box shows how limpetMLIR fits into the original code generation process, to emit optimized code for CPU and GPU.\label{fig:limpetMLIR}](./limpetMLIR.png)
 
 
-1. From the EasyML (a DSL to write ionic models) description the `limpet_fe` python program creates 
-    an AST, which serves as a common entry point for the baseline openCARP and 
-    limpetMLIR.
+1. From the EasyML (a DSL to write ionic models) description the
+    `limpet_fe` python program creates an AST, which serves as a common entry point for the baseline openCARP and limpetMLIR.
     
 2. Using python bindings, the limpetMLIR code generator emits MLIR code 
     using the `scf`, `arith`, `math` and `memref` dialects; the 
-    control flow expressed in `scf` allows the latter MLIR passes to lower 
-    it to a parallel control flow in the `gpu` dialect. 
+    control flow expressed in `scf` allows the latter MLIR passes to lower it to a parallel control flow in the `gpu` dialect. 
     
-3. The MLIR lowering  pass converts the MLIR code into a GPU device code part 
+3. The MLIR lowering  pass converts the MLIR code into a GPU device code part  
     using a specific GPU low-level dialect. This low-level dialect can be either `nvvm` 
     (the Nvidia CUDA IR) or `rocdl` (the AMD ROCm IR) depending on the target GPU 
     architecture. This pass finally outputs a binary blob that will be integrated by 
     the next step.
     
-4. The MLIR translator pass converts the MLIR code into a CPU host code part (represented using the `llvm` dialect) to LLVM IR, and that calls the kernel embedded in the binary blob.
+5. The MLIR translator pass converts the MLIR code into a CPU host code part (represented using the `llvm` dialect) to LLVM IR, and that calls the kernel embedded in the binary blob.
 
-5. Last is the linking phase, where `C/C++` and LLVM IR GPU files are linked together into an object file using LLVM.
+6. Last is the linking phase, where `C/C++` and LLVM IR GPU files are linked together into an object file using LLVM.
 
-We are further developing our limpetMLIR by integrating with a task-based runtime system like StarPU[@starpu], 
-in order to exploit simultaneously CPU and GPU so able
-to run experiments at larger scales.
+We are further developing our limpetMLIR by integrating with a task-based runtime system like StarPU[@starpu], in order to exploit simultaneously CPU and GPU so able to run experiments at larger scales.
 
 We build our code generation software on top of the openCARP source files. The authors listed here are contributors for GPU code generation software alone.
 The license for the rest of the software is same as the openCARP licenses.
 
 # Acknowledgements
 
-This work was supported by the European High-Performance Computing Joint Undertaking EuroHPC under grant agreement No 955495 (**MICROCARD**), co-funded by the Horizon 2020 programme of the European Union (EU), 
-and France, Italy, Germany, Austria, Norway, and Switzerland (\url{https://microcard.eu}).
-Some experiments presented in this paper were carried out using the **PlaFRIM** experimental test bed, supported by Inria, CNRS (LABRI and IMB), Université de Bordeaux, Bordeaux INP and Conseil Régional d’Aquitaine (\url{https://plafrim.fr}).
-Some experiments presented in this paper were carried out using the **Grid'5000** testbed, supported by a scientific interest group hosted by Inria and including CNRS, RENATER and several Universities as well as other organizations (\url{https://www.grid5000.fr}).
+This work was supported by the European High-Performance Computing Joint Undertaking EuroHPC under grant agreement No 955495 [**MICROCARD**](https://microcard.eu), co-funded by the Horizon 2020 programme of the European Union (EU), and France, Italy, Germany, Austria, Norway, and Switzerland.
+Some experiments presented in this paper were carried out using the [**PlaFRIM**](https://plafrim.fr) experimental test bed, supported by Inria, CNRS (LABRI and IMB), Université de Bordeaux, Bordeaux INP and Conseil Régional d’Aquitaine .
+Some experiments presented in this paper were carried out using the [**Grid'5000**](https://www.grid5000.fr) testbed, supported by a scientific interest group hosted by Inria and including CNRS, RENATER and several Universities as well as other organizations.
 
 # References
